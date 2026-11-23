@@ -1,6 +1,8 @@
 <!-- SPDX-License-Identifier: MPL-2.0 -->
 # Hello LVGL
 
+<p align="center"><img src="docs/hello-lvgl.webp" alt="Hello LVGL, animated: a dial changed with the knob, a button pressed, the light theme" width="720"></p>
+
 A dial and a button made of [LVGL](https://lvgl.io) widgets. LVGL draws in
 software into a full-panel buffer; `src/display_gl.cpp` shows that buffer in
 the SDK's OpenGL ES 2 window, uploading only what changed. Build and forms:
@@ -50,3 +52,4 @@ fonts' (`make notice`).
 | `src/lv_conf.h` | LVGL's configuration |
 | `tests/` | Launch, package and notice tests (`test_hello_lvgl.py`) |
 | `release/` | The package description (`package.args`; `native.args` for the native form) |
+| `docs/` | The animation above (`make anim`) |

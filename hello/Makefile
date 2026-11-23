@@ -6,6 +6,7 @@
 #   test-asan         the same under AddressSanitizer and UBSan
 #   check-static-init nothing of ours runs before main
 #   notice            legal/NOTICE.txt (notice-check: it is current)
+#   anim              docs/hello.webp, the README's animation
 # For the head unit, with the NBT toolchain, in three forms (FORM):
 #   module            build/nbt-hello.so, loaded into NBT Manager's nbt-runner
 #   guest             build/nbt-hello.guest, nbt-runner's child process: the
@@ -65,7 +66,7 @@ ASAN_TEST := $(BUILD_DIR)/$(APP)-test-asan
 APP_ENV := NBT_$(shell echo $(APP) | tr a-z- A-Z_)_APP
 
 .PHONY: all host test test-asan check-static-init format module guest native native-check vm-test package \
-	notice notice-check clean
+	notice notice-check anim clean
 
 all: host test
 
@@ -245,6 +246,11 @@ notice:
 notice-check:
 	NBT_SDK_DIR=$(NBT_SDK_ROOT) NBT_TOOLCHAIN=$(NBT_TOOLCHAIN) $(PYTHON) $(TOP)/tools/make_notice.py \
 		--check --out legal/NOTICE.txt
+
+# The README's animation (the repository's tools/capture.py): the host build
+# under Xvfb, played through the controller's socket and a settings file.
+anim: $(HOST_APP)
+	$(PYTHON) $(TOP)/tools/capture.py hello $(HOST_APP) docs/hello.webp
 
 clean:
 	rm -rf $(BUILD_DIR)

@@ -1,6 +1,8 @@
 <!-- SPDX-License-Identifier: MPL-2.0 -->
 # Hello
 
+<p align="center"><img src="docs/hello.webp" alt="Hello, animated: a box moved and resized with the iDrive controller, its colour changed from the settings, the help" width="720"></p>
+
 A box to move and resize: an application on the NBT App SDK alone. It opens
 the window, reads the iDrive controller, a gamepad and the desktop keyboard,
 follows its settings while it runs, reports a status line, passes NBT
@@ -58,4 +60,4 @@ SDK's tracing.
 | `src/controls.*` | The actions on each pad family, the iDrive controller and the keyboard |
 | `tests/` | Unit test (`hello_test.cpp`); launch, package and notice tests (`test_hello.py`) |
 | `release/` | The package description (`package.args`; `native.args` for the native form) |
-| `docs/car-test.md` | A procedure for the car, as an application writes one before a release |
+| `docs/` | A procedure for the car, as an application writes one before a release (`car-test.md`); the animation above (`make anim`) |

@@ -19,10 +19,14 @@ Each example is a whole application on the [NBT App SDK](https://github.com/NBTF
 as NBT Manager installs and runs one: its sources, its build for the desktop
 and for the head unit, its tests and its package description.
 
-| Example | Shows |
-| --- | --- |
-| [`hello/`](hello/) | The SDK alone: the window, the iDrive controller, a USB gamepad by pad family and the desktop keyboard, settings that apply while it runs, a status line, the health check |
-| [`lvgl/`](lvgl/) | A screen made of [LVGL](https://lvgl.io) widgets, with the iDrive controller as LVGL's encoder: turn to choose, push to change or press |
+<table>
+<tr>
+<td width="50%"><a href="hello/"><img src="hello/docs/hello.webp" alt="Hello, animated: a box moved and resized with the iDrive controller, its colour changed from the settings, the help"></a><br>
+<a href="hello/"><b><code>hello/</code></b></a>: the SDK alone. The window, the iDrive controller, a USB gamepad by pad family and the desktop keyboard, settings that apply while it runs, a status line, the health check.</td>
+<td width="50%"><a href="lvgl/"><img src="lvgl/docs/hello-lvgl.webp" alt="Hello LVGL, animated: a dial changed with the knob, a button pressed, the light theme"></a><br>
+<a href="lvgl/"><b><code>lvgl/</code></b></a>: a screen made of <a href="https://lvgl.io">LVGL</a> widgets, with the iDrive controller as LVGL's encoder: turn to choose, push to change or press.</td>
+</tr>
+</table>
 
 To start an application of your own, use the
 [template](https://github.com/NBTFoundry/template): the bare minimum, ready to
@@ -60,6 +64,10 @@ health check without a window, then launches under Xvfb driven through the
 controller and gamepad sockets, the status line and a settings file. The
 package test needs NBT Manager's checkout (`../manager`, or `NBT_MGR_DIR`)
 with `nbt-verify` built (`make -C ../manager host`); it is skipped without.
+
+`make anim` records the example's animation for its README: the desktop build
+under Xvfb, played through the controller's socket and a settings file
+(`tools/capture.py`; needs ffmpeg with libwebp).
 
 ## The head unit: with and without the runner
 
@@ -103,7 +111,7 @@ under ASan/UBSan, and the three head-unit forms).
 | --- | --- |
 | `hello/`, `lvgl/` | The examples: each with its `Makefile`, `src/`, `tests/`, `release/` (package description) and `legal/NOTICE.txt` |
 | `third_party/lvgl/` | LVGL 9.6, unmodified (submodule) |
-| `tools/make_notice.py` | Writes an example's notices |
+| `tools/make_notice.py`, `tools/capture.py` | Write an example's notices; record its animation |
 | `release/sdk.ref` | The SDK commit to build against |
 | `legal/`, `LICENSES/` | Notices and licence texts |
 
