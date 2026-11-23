@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: MPL-2.0
+# The package description for tools/package.py (NBTFoundry/manager): one argument
+# per line. `make package` and the release workflow both use it; they add the
+# version, sequence, key, output and executable. Bridge 1.7: the payload is a
+# module or a guest built with the NBT toolchain, run by NBT Manager's
+# nbt-runner (runner); the native form's lines are in native.args.
+# It draws on the manager's surface (show) and is used with the iDrive
+# controller; a USB gamepad, the status line and live settings when granted.
+--app
+hello-lvgl
+--compat
+nbt_6.5_armv7
+--bridge
+1.7
+--bridge-uses
+show,controller,runner
+--bridge-optional
+status,live-settings,gamepad
+# Settings: key|Label|default|choices. At most 12; src/ui.cpp reads them,
+# tests/test_hello_lvgl.py checks they are declared.
+--setting
+theme|Theme|dark|dark,light
+--setting
+debug_log|Debug log|off|off,on
+# What the phone app shows before an install (NBT Manager's PROTOCOL.md,
+# "Package information").
+--property
+Project|NBTFoundry examples
+--property
+Licence|MPL-2.0; LVGL MIT; fonts OFL-1.1
+--text
+A dial and a button made of LVGL widgets: an example of an LVGL application on NBT Manager.
+--text=
+--text
+Do not interact with it while driving.
+--text=
+--text
+Source, licences and notices: https://github.com/NBTFoundry/examples
