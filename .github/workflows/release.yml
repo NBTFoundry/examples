@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: MPL-2.0
+# A signed package of one example from a <app>-vX.Y.Z tag (hello-v0.1.0,
+# hello-lvgl-v0.1.0): NBT Manager's application release workflow builds the
+# example's module with the NBT toolchain release the SDK pins, signs it with
+# this repository's developer key (release/developer-public.pem; the private
+# half is APPS_SIGNING_KEY in the "release" environment, after approval) and
+# publishes <app>-X.Y.Z.nbt under the tag. The examples show the developer-key
+# path a third-party application takes: a car installs them once that key is
+# added from the phone app (Developer keys). NBTFoundry/community-apps builds
+# the same sources and signs them with NBTFoundry's apps key.
+name: Release
+
+on:
+  push:
+    tags: ["hello-v*", "hello-lvgl-v*"]
+
+permissions: {}
+
+jobs:
+  pins:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      sdk: ${{ steps.read.outputs.sdk }}
+      app: ${{ steps.read.outputs.app }}
+      folder: ${{ steps.read.outputs.folder }}
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          sparse-checkout: release/sdk.ref
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - id: read
+        run: |
+          sdk="$(cat release/sdk.ref)"
+          [[ "$sdk" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::release/sdk.ref is not a commit"; exit 1; }
+          [[ "$GITHUB_REF_NAME" =~ ^(hello|hello-lvgl)-v([0-9]+\.[0-9]+\.[0-9]+)$ ]] \
+            || { echo "::error::tags are hello-vX.Y.Z or hello-lvgl-vX.Y.Z"; exit 1; }
+          app="${BASH_REMATCH[1]}"
+          folder=hello
+          [[ "$app" == hello-lvgl ]] && folder=lvgl
+          {
+            echo "sdk=$sdk"
+            echo "app=$app"
+            echo "folder=$folder"
+            echo "version=${BASH_REMATCH[2]}"
+          } >>"$GITHUB_OUTPUT"
+
+  release:
+    needs: pins
+    uses: NBTFoundry/manager/.github/workflows/app-release.yml@83504ec1d11ab6125f081a4988f0fc1b275cf35b # manager main: developer key (public-key), version from the tag
+    permissions:
+      contents: write
+      packages: read
+    # The key is an environment secret; a called workflow sees it only so.
+    secrets: inherit
+    with:
+      sdk-ref: ${{ needs.pins.outputs.sdk }}
+      app: ${{ needs.pins.outputs.app }}
+      version: ${{ needs.pins.outputs.version }}
+      build: make -C ${{ needs.pins.outputs.folder }} NBT_SDK_DIR="$PWD/../sdk" -j"$(nproc)" module
+      payload: ${{ needs.pins.outputs.folder }}/build/nbt-${{ needs.pins.outputs.app }}.so
+      package-args: ${{ needs.pins.outputs.folder }}/release/package.args
+      public-key: release/developer-public.pem

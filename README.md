@@ -105,6 +105,22 @@ Our code is C++11 without exceptions or RTTI, and nothing of it runs before
 every example against (`.github/workflows/ci.yml`: the host tests, the same
 under ASan/UBSan, and the three head-unit forms).
 
+## Releases
+
+Each example is released on its own, from a tag `hello-vX.Y.Z` or
+`hello-lvgl-vX.Y.Z`, two ways:
+
+- **Here, with a developer key:** signed with this repository's own key, as a
+  third-party application would be. Add `release/developer-public.pem` on the
+  car first: in the NBT Manager app, Car › Manage › Developer keys (fingerprint
+  `57f3 7c30 e437 198f`).
+- **In [community-apps](https://github.com/NBTFoundry/community-apps):** built
+  from these sources and signed with NBTFoundry's apps key, like any submitted
+  application; it installs with no key to add.
+
+A car keeps an example with the key that installed it first: remove it before
+switching to the other.
+
 ## Layout
 
 | Path | Contents |
