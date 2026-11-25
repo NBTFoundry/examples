@@ -49,6 +49,8 @@ of BMW AG.
 
 ## Build
 
+Coding agents: [AGENTS.md](AGENTS.md).
+
 Needs the NBT App SDK next to this repository (`../sdk`, or `NBT_SDK_DIR`),
 gcc, Python 3, and the X11, EGL and GLESv2 development files; Xvfb for the
 tests. `git submodule update --init` fetches LVGL for the `lvgl` example. In
