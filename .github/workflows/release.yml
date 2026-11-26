@@ -50,7 +50,7 @@ jobs:
 
   release:
     needs: pins
-    uses: NBTFoundry/manager/.github/workflows/app-release.yml@83504ec1d11ab6125f081a4988f0fc1b275cf35b # manager main: developer key (public-key), version from the tag
+    uses: NBTFoundry/manager/.github/workflows/app-release.yml@d65d6e5a8b60ed1c22b395891734c2432c30c989 # manager v0.4.0
     permissions:
       contents: write
       packages: read
