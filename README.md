@@ -110,7 +110,9 @@ under ASan/UBSan, and the three head-unit forms).
 ## Releases
 
 Each example is released on its own, from a tag `hello-vX.Y.Z` or
-`hello-lvgl-vX.Y.Z`, two ways:
+`hello-lvgl-vX.Y.Z`, with its notes written first
+(`hello/release/notes/X.Y.Z.md`, `lvgl/release/notes/X.Y.Z.md`: the build
+fails without them), two ways:
 
 - **Here, with a developer key:** signed with this repository's own key, as a
   third-party application would be. Add `release/developer-public.pem` on the
