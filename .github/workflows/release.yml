@@ -50,7 +50,7 @@ jobs:
 
   release:
     needs: pins
-    uses: NBTFoundry/manager/.github/workflows/app-release.yml@b7f3e841e7f1543bd57df9bdf0f63dc91a8ec748 # manager main after v0.5.8: catalog update
+    uses: NBTFoundry/manager/.github/workflows/app-release.yml@dee162a13ce98c4fb57f9a33bcf6c19d5232a568 # manager 0.6.0: bridge 1.10
     permissions:
       contents: write
       packages: read
