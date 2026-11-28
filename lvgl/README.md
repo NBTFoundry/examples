@@ -12,6 +12,10 @@ The iDrive controller is what LVGL calls an encoder: turning moves the focus
 from widget to widget, a push starts and ends changing the focused one, or
 presses it. `src/main.cpp` feeds every input to that encoder.
 
+## Touch screen
+
+Drag the dial or tap Reset with one finger. The example registers an LVGL pointer alongside its iDrive encoder. This package requires bridge 1.10.
+
 ## Controls
 
 | Action | iDrive controller | Xbox | DualShock 4 / DualSense | Desktop |

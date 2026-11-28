@@ -17,6 +17,7 @@
 #include "nbt/frontend/hints.hpp"
 #include "nbt/frontend/pad_profiles.hpp"
 #include "nbt/gamepad/input.hpp"
+#include "nbt/touch/input.hpp"
 #include "ui.hpp"
 
 namespace {
@@ -29,6 +30,25 @@ const uint32_t kFrameMs = 16;
 const int kPanelWidth = 1280, kPanelHeight = 480;
 
 /* --- Controls: every input ends as the encoder's turn and push. --- */
+void read_pointer(lv_indev_t* indev, lv_indev_data_t* data) {
+  const nbt::touch::Event& event =
+      *static_cast<const nbt::touch::Event*>(lv_indev_get_user_data(indev));
+  data->point.x = event.x;
+  data->point.y = event.y;
+  data->state = event.phase == nbt::touch::Up || event.phase == nbt::touch::Cancel
+                    ? LV_INDEV_STATE_RELEASED
+                    : LV_INDEV_STATE_PRESSED;
+}
+
+void on_pointer(void* context, const nbt::touch::Event& event) {
+  lv_indev_t* indev = static_cast<lv_indev_t*>(context);
+  if (event.phase == nbt::touch::Cancel) lv_indev_wait_release(indev);
+  nbt::touch::Event sample = event;
+  lv_indev_set_user_data(indev, &sample);
+  lv_indev_read(indev);
+  lv_indev_set_user_data(indev, NULL);
+}
+
 enum Action { kActionBack = 0, kActionForward, kActionPush };
 
 /* A pad: the D-pad, the left stick or the shoulder buttons turn, the bottom
@@ -166,12 +186,22 @@ int main(int argc, char** argv) {
   PadMapper mapper(kProfiles);
   Turns turns;
   mapper.set_sink(&turns);
+  nbt::touch::Pointer pointer;
+  lv_indev_t* touch = NULL;
+  if (lifecycle.touch_fd() >= 0) {
+    touch = lv_indev_create();
+    if (!touch) return 1;
+    lv_indev_set_type(touch, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_mode(touch, LV_INDEV_MODE_EVENT);
+    lv_indev_set_read_cb(touch, &read_pointer);
+  }
   nbt::controller::Input controller;
   nbt::gamepad::Input gamepad;
   Inputs inputs = {&mapper, &turns, 0};
   while (!lifecycle.stopping()) {
     const uint64_t now = nbt::app::monotonic_ms();
     inputs.now = now;
+    if (touch) pointer.poll(lifecycle.touch_fd(), width, height, &on_pointer, touch);
     if (lifecycle.controller_fd() >= 0) {
       controller.poll(lifecycle.controller_fd(), &on_controller, &inputs);
     }

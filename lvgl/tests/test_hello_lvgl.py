@@ -129,13 +129,14 @@ class UserLaunchTest(unittest.TestCase):
         self.x, self.display = xvfb()
         self.controller_app, self.controller = socket.socketpair(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.pad_app, self.pad = socket.socketpair(socket.AF_UNIX, socket.SOCK_DGRAM)
+        self.touch, self.touch_app = socket.socketpair(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.status_path = self.tmp / "status"
         self.status_fd = os.open(self.status_path, os.O_RDWR | os.O_CREAT, 0o600)
         self.settings_path = self.tmp / "settings"
         self.seq = self.pad_seq = self.detents = 0
 
     def tearDown(self):
-        for sock in (self.controller_app, self.controller, self.pad_app, self.pad):
+        for sock in (self.controller_app, self.controller, self.pad_app, self.pad, self.touch, self.touch_app):
             sock.close()
         os.close(self.status_fd)
         self.x.terminate()
@@ -154,13 +155,14 @@ class UserLaunchTest(unittest.TestCase):
         env = {
             "NBT_LAUNCH": "user", "DISPLAY": self.display, "LIBGL_ALWAYS_SOFTWARE": "1",
             "NBT_NO_AUDIO": "1", "NBT_DATA_DIR": str(self.tmp),
-            "NBT_BRIDGE_CAPS": "show,controller,status,live-settings,gamepad",
+            "NBT_BRIDGE_CAPS": "show,controller,status,live-settings,gamepad,touch",
+            "NBT_TOUCH_FD": str(self.touch_app.fileno()),
             "NBT_CONTROLLER_FD": str(self.controller_app.fileno()),
             "NBT_GAMEPAD_FD": str(self.pad_app.fileno()),
             "NBT_STATUS_FD": str(self.status_fd),
             "NBT_SETTINGS_FILE": str(self.settings_path),
         }
-        app = App(env, pass_fds=(self.controller_app.fileno(), self.pad_app.fileno(), self.status_fd))
+        app = App(env, pass_fds=(self.touch_app.fileno(), self.controller_app.fileno(), self.pad_app.fileno(), self.status_fd))
         self.addCleanup(lambda: app.proc.poll() is None and app.proc.kill())
         app.wait(r"ready, 1280x480, caps show,controller,status,live-settings,gamepad")
         self.keys(0)  # keys count once all were seen up
@@ -216,6 +218,16 @@ class UserLaunchTest(unittest.TestCase):
         self.assertEqual(self.value(), 50)
         self.assertEqual(app.stop(), 0, app.seen[-20:])
         self.assertFalse([line for line in app.seen if "lvgl:" in line], app.seen)
+
+    def test_one_frame_tap_reaches_the_lvgl_button(self):
+        app = self.start()
+        # The actual Reset widget is centred at (896,264) in this window.
+        # Both transitions can arrive before LVGL's next refresh.
+        for seq, phase in enumerate((1, 3)):
+            self.touch.send(struct.pack("<BBBBIHHBBHH", 84, 1, 1, 0, seq, 1280, 480,
+                                        0, phase, 896, 264))
+        app.wait(r"\] reset$")
+        self.assertEqual(app.stop(), 0)
 
     def test_a_gamepad_turns_and_pushes_and_the_theme_applies_live(self):
         app = self.start(theme="dark")
@@ -282,9 +294,9 @@ class PackageTest(unittest.TestCase):
     def test_with_the_runner_it_declares_bridge_1_7_and_its_settings(self):
         out, manifest = self.package("module")
         self.assertIn("app=hello-lvgl\n", out)
-        self.assertIn("bridge=1.7\n", out)
+        self.assertIn("bridge=1.10\n", out)
         self.assertIn("bridge-uses=show,controller,runner\n", out)
-        self.assertIn("bridge-optional=status,live-settings,gamepad\n", out)
+        self.assertIn("bridge-optional=status,live-settings,gamepad,touch\n", out)
         # Every setting declared is one the application reads, with its
         # choices (src/ui.cpp).
         ui = (ROOT / "src/ui.cpp").read_text()
@@ -299,7 +311,7 @@ class PackageTest(unittest.TestCase):
     def test_without_the_runner_it_declares_bridge_1_5(self):
         out, manifest = self.package("native")
         self.assertIn("app=hello-lvgl\n", out)
-        self.assertIn("bridge=1.5\n", out)
+        self.assertIn("bridge=1.10\n", out)
         self.assertIn("bridge-uses=show,controller\n", out)
         self.assertEqual(len(re.findall(r"^setting=", manifest, re.M)), 2)
 

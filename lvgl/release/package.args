@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MPL-2.0
 # The package description for tools/package.py (NBTFoundry/manager): one argument
 # per line. `make package` and the release workflow both use it; they add the
-# version, sequence, key, output and executable. Bridge 1.7: the payload is a
+# version, sequence, key, output and executable. Bridge 1.10: the payload is a
 # module or a guest built with the NBT toolchain, run by NBT Manager's
 # nbt-runner (runner); the native form's lines are in native.args.
 # It draws on the manager's surface (show) and is used with the iDrive
@@ -11,11 +11,11 @@ hello-lvgl
 --compat
 nbt_6.5_armv7
 --bridge
-1.7
+1.10
 --bridge-uses
 show,controller,runner
 --bridge-optional
-status,live-settings,gamepad
+status,live-settings,gamepad,touch
 # Settings: key|Label|default|choices. At most 12; src/ui.cpp reads them,
 # tests/test_hello_lvgl.py checks they are declared.
 --setting
